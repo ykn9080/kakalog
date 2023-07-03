@@ -6,6 +6,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 public class LogGenerator implements Runnable{
@@ -26,6 +27,8 @@ public class LogGenerator implements Runnable{
     }
     @Override
     public void run() {
+        long sleepTime = MINIMUM_SLEEP_TIME + Double.valueOf(rand.nextDouble()
+                * (MAXIMUM_SLEEP_TIME - MINIMUM_SLEEP_TIME)).longValue();
         Properties props=new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"winubuntu:9092");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "LogGenenrator");
@@ -34,9 +37,18 @@ public class LogGenerator implements Runnable{
 
         KafkaProducer<String,String>producer=new KafkaProducer<>(props);
         while(isDuration(startTime)){
-            try{
-                Thread.sleep(sleepTime)
-            }
+
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                String msg=String.format("%s,%s,%s",ipAddr,sessionId,System.currentTimeMillis());
+            System.out.println(msg);
+            producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
+
         }
+        producer.close();
+        this.latch.countDown();
     }
 }
