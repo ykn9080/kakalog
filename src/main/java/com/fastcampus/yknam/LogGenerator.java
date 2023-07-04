@@ -56,7 +56,7 @@ public class LogGenerator implements Runnable{
             String msg=String.format("%s,%s,%s,%s,%s,%s,%s",
                     ipAddr, offsetDateTime, method, url, responseCode, responseTime, sessionId);
             System.out.println(msg);
-            producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
+            //producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
 
         }
         producer.close();
