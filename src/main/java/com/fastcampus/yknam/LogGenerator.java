@@ -1,5 +1,7 @@
 package com.fastcampus.yknam;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -36,19 +38,54 @@ public class LogGenerator implements Runnable{
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         KafkaProducer<String,String>producer=new KafkaProducer<>(props);
+
+        long startTime = System.currentTimeMillis();
         while(isDuration(startTime)){
 
-                try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                String msg=String.format("%s,%s,%s",ipAddr,sessionId,System.currentTimeMillis());
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            String responseCode=getResponseCode();
+            String responseTime=getResponseTime();
+            String method=getMethod();
+            OffsetDateTime offsetDateTime=OffsetDateTime.now(ZoneId.of("UTC"));
+
+            String msg=String.format("%s,%s,%s",ipAddr,sessionId,System.currentTimeMillis());
             System.out.println(msg);
             producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
 
         }
         producer.close();
         this.latch.countDown();
+    }
+    private boolean isDuration(long startTime) {
+        return System.currentTimeMillis() - startTime < durationSeconds * 1000L;
+    }
+    private String getResponseCode(){
+        String responseCode="200";
+        if(rand.nextDouble()>0.97)
+            responseCode="404";
+        return responseCode;
+    }
+    private String getResponseTime(){
+        int responseTime=100+rand.nextInt(901);
+        return String.valueOf(responseTime);
+    }
+    private String getMethod(){
+        if(rand.nextDouble()>0.7)
+            return "POST";
+        else
+        return "GET";
+    }
+    private String getUrl(){
+        double randomValue=rand.nextDouble();
+        if(randomValue>0.9)
+            return "/ad/page";
+        else if(randomValue>0.8)
+            return "/doc/page";
+        else
+            return "/";
     }
 }
