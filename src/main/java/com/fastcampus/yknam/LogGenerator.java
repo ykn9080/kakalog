@@ -50,9 +50,11 @@ public class LogGenerator implements Runnable{
             String responseCode=getResponseCode();
             String responseTime=getResponseTime();
             String method=getMethod();
+            String url=getUrl();
             OffsetDateTime offsetDateTime=OffsetDateTime.now(ZoneId.of("UTC"));
 
-            String msg=String.format("%s,%s,%s",ipAddr,sessionId,System.currentTimeMillis());
+            String msg=String.format("%s,%s,%s,%s,%s,%s,%s",
+                    ipAddr, offsetDateTime, method, url, responseCode, responseTime, sessionId);
             System.out.println(msg);
             producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
 
