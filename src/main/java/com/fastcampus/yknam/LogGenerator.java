@@ -32,7 +32,7 @@ public class LogGenerator implements Runnable{
         long sleepTime = MINIMUM_SLEEP_TIME + Double.valueOf(rand.nextDouble()
                 * (MAXIMUM_SLEEP_TIME - MINIMUM_SLEEP_TIME)).longValue();
         Properties props=new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"winubuntu:9092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,"winubuntu:9092,namubuntu:9092");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "LogGenenrator");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -56,7 +56,7 @@ public class LogGenerator implements Runnable{
             String msg=String.format("%s,%s,%s,%s,%s,%s,%s",
                     ipAddr, offsetDateTime, method, url, responseCode, responseTime, sessionId);
             System.out.println(msg);
-            //producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
+            producer.send(new ProducerRecord<>(TOPIC_NAME,msg));
 
         }
         producer.close();
